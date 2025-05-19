@@ -5,36 +5,29 @@ function App() {
     // simple form input submit handler using useState
     const [inputValue, setInputValue] = useState("");
     const [outputValue, setOutputValue] = useState("");
+    const [loading, setLoading] = useState(false);
     const handleInputChange = (event) => {
         setInputValue(event.target.value);
     };
     const handleSubmit = async (event) => {
         event.preventDefault();
         console.log("Form submitted:", inputValue);
+        setLoading(true);
 
-        // response handling from LM Studio - LLM model
-        const response = await fetch(
-            "http://localhost:1234/v1/chat/completions",
-            {
-                method: "POST",
-                headers: {
-                    "Content-Type": "application/json",
-                },
-                body: JSON.stringify({
-                    messages: [
-                        {
-                            role: "user",
-                            content: `You are a helpful assistant. Answer this query: "${inputValue}"`,
-                        },
-                    ],
-                }),
-            }
-        );
-        const data = await response.json();
-        const val = data.choices[0].message.content;
-        console.log("LLM response:", val);
-        setInputValue("");
-        setOutputValue(val);
+        // call to node.js server for summarization /api/summarizer
+        const response = await fetch("http://localhost:3000/api/summarizer", {
+            method: "POST",
+            headers: {
+                "Content-Type": "application/json",
+            },
+            body: JSON.stringify({
+                text: inputValue,
+            }),
+        });
+
+        const res = await response.json();
+        setOutputValue(res.data, null, 2);
+        setLoading(false);
     };
 
     return (
@@ -52,7 +45,8 @@ function App() {
                     <button type="submit">Submit</button>
                 </form>
             </header>
-            <p>{outputValue && <span>LLM response: {outputValue}</span>}</p>
+            <p>{loading && <span>Loading...</span>}</p>
+            <p>{outputValue && <span>{outputValue}</span>}</p>
         </div>
     );
 }
