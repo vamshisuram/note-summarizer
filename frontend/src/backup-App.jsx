@@ -2,6 +2,7 @@ import { useState } from "react";
 import "./App.css";
 
 function App() {
+    // simple form input submit handler using useState
     const [inputValue, setInputValue] = useState("");
     const [outputValue, setOutputValue] = useState("");
     const [loading, setLoading] = useState(false);
@@ -9,11 +10,12 @@ function App() {
     const handleInputChange = (event) => {
         setInputValue(event.target.value);
     };
-
     const handleSubmit = async (event) => {
         event.preventDefault();
+        console.log("Form submitted:", inputValue);
         setLoading(true);
 
+        // call to node.js server for summarization /api/summarizer
         const response = await fetch("http://localhost:3000/api/summarizer", {
             method: "POST",
             headers: {
@@ -31,7 +33,7 @@ function App() {
 
     return (
         <div className="App">
-            <h1>Note Summarizer</h1>
+            <header className="App-header">Note Summarizer</header>
             <form onSubmit={handleSubmit}>
                 <div>
                     <textarea
